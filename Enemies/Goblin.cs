@@ -9,21 +9,23 @@ namespace RPGproject.Enemies
 {
     public class Goblin : Enemy
     {
-        public Goblin(EnemyRank rank)
+        public Goblin(EnemyRank rank) : base(rank) { }
+
+        protected override void InitializeStatsByRank(EnemyRank rank)
         {
-            Name = rank == EnemyRank.Boss ? "Goblin King" : "Goblin";
-            Health = rank == EnemyRank.Boss ? 150 : 80;
+            Name = rank == EnemyRank.Boss ? "Goblin King" : rank == EnemyRank.Elite ? "Goblin Elite" : "Goblin";
+            MaxHealth = rank == EnemyRank.Boss ? 150 : rank == EnemyRank.Elite ? 120 : 80;
+            Health = MaxHealth;
             Mana = 20;
-            Strength = rank == EnemyRank.Boss ? 30 : 10;
+            Strength = rank == EnemyRank.Boss ? 30 : rank == EnemyRank.Elite ? 20 : 10;
             Agility = 10;
-            Rank = rank;
+            Defense = rank == EnemyRank.Boss ? 8 : rank == EnemyRank.Elite ? 6 : 4;
         }
 
-        // Override the Attack method from the base class
         public override void Attack(ICombatant target)
         {
             Console.WriteLine($"{Name} swings a club at {target.Name}!");
-            base.Attack(target);  // Call the base class Attack method for damage calculation
+            base.Attack(target);
         }
 
         public override void Move()
