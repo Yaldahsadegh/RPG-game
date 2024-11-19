@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/5fnL7qUn)
 # Fantasy RPG Feature Development Project
 
 ## Objective & Instructions:
@@ -132,10 +129,3 @@ Each feature implementation will be evaluated on the following criteria:
   - **1 point**: Basic comments and documentation exist but lack clarity and detail.
   - **2 points**: Code is well-commented, with clear user and technical documentation.
 
-
-=======
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/VxxjbsLG)
->>>>>>> c55584a (creating a base structure for the project/combatsystem folder implemented/Icombatant and combat manager added to handle combat system/action strategies developed to support the combat system)
-=======
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/VxxjbsLG)
->>>>>>> c55584a (creating a base structure for the project/combatsystem folder implemented/Icombatant and combat manager added to handle combat system/action strategies developed to support the combat system)
