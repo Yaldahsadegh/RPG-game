@@ -13,13 +13,31 @@ namespace RPGproject.Enemies
 
         protected override void InitializeStatsByRank(EnemyRank rank)
         {
-            Name = rank == EnemyRank.Boss ? "Goblin King" : rank == EnemyRank.Elite ? "Goblin Elite" : "Goblin";
-            MaxHealth = rank == EnemyRank.Boss ? 150 : rank == EnemyRank.Elite ? 120 : 80;
+            // Stats and name are configured based on rank
+            Name = "Goblin";
+            MaxHealth = 80;
             Health = MaxHealth;
             Mana = 20;
-            Strength = rank == EnemyRank.Boss ? 30 : rank == EnemyRank.Elite ? 20 : 10;
+            Strength = 10;
             Agility = 10;
-            Defense = rank == EnemyRank.Boss ? 8 : rank == EnemyRank.Elite ? 6 : 4;
+            Defense = 4;
+
+            // Adjustments for ranks handled here
+            if (rank == EnemyRank.Elite)
+            {
+                Name = "Goblin Elite";
+                MaxHealth = 120;
+                Strength = 20;
+                Defense = 6;
+            }
+            else if (rank == EnemyRank.Boss)
+            {
+                Name = "Goblin King";
+                MaxHealth = 150;
+                Strength = 30;
+                Defense = 8;
+            }
+            Health = MaxHealth; // Ensure starting health matches max health
         }
 
         public override void Attack(ICombatant target)

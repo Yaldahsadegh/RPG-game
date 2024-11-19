@@ -13,13 +13,23 @@ namespace RPGproject.Enemies
 
         protected override void InitializeStatsByRank(EnemyRank rank)
         {
-            Name = rank == EnemyRank.Boss ? "Ancient Dragon" : "Dragon";
-            MaxHealth = rank == EnemyRank.Boss ? 1000 : 500;
+            Name = "Dragon";
+            MaxHealth = 500;
             Health = MaxHealth;
             Mana = 200;
-            Strength = rank == EnemyRank.Boss ? 100 : 50;
-            Agility = rank == EnemyRank.Boss ? 30 : 15;
-            Defense = rank == EnemyRank.Boss ? 20 : 10;
+            Strength = 50;
+            Agility = 15;
+            Defense = 10;
+
+            if (rank == EnemyRank.Boss)
+            {
+                Name = "Ancient Dragon";
+                MaxHealth = 1000;
+                Strength = 100;
+                Agility = 30;
+                Defense = 20;
+            }
+            Health = MaxHealth;
         }
 
         public override void Attack(ICombatant target)

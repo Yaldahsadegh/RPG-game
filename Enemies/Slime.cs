@@ -13,13 +13,29 @@ namespace RPGproject.Enemies
 
         protected override void InitializeStatsByRank(EnemyRank rank)
         {
-            Name = rank == EnemyRank.Boss ? "King Slime" : rank == EnemyRank.Elite ? "Elite Slime" : "Slime";
-            MaxHealth = rank == EnemyRank.Boss ? 200 : rank == EnemyRank.Elite ? 100 : 50;
+            Name = "Slime";
+            MaxHealth = 50;
             Health = MaxHealth;
             Mana = 10;
-            Strength = rank == EnemyRank.Boss ? 20 : rank == EnemyRank.Elite ? 10 : 5;
+            Strength = 5;
             Agility = 5;
-            Defense = rank == EnemyRank.Boss ? 5 : rank == EnemyRank.Elite ? 3 : 1;
+            Defense = 1;
+
+            if (rank == EnemyRank.Elite)
+            {
+                Name = "Elite Slime";
+                MaxHealth = 100;
+                Strength = 10;
+                Defense = 3;
+            }
+            else if (rank == EnemyRank.Boss)
+            {
+                Name = "King Slime";
+                MaxHealth = 200;
+                Strength = 20;
+                Defense = 5;
+            }
+            Health = MaxHealth;
         }
 
         public override void Attack(ICombatant target)
