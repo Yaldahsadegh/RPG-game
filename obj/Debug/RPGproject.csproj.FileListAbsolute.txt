@@ -1,0 +1,8 @@
+C:\Users\yalda\source\repos\RPGproject\obj\Debug\RPGproject.csproj.AssemblyReference.cache
+C:\Users\yalda\source\repos\RPGproject\obj\Debug\RPGproject.csproj.SuggestedBindingRedirects.cache
+C:\Users\yalda\source\repos\RPGproject\obj\Debug\RPGproject.csproj.CoreCompileInputs.cache
+C:\Users\yalda\source\repos\RPGproject\bin\Debug\RPGproject.exe.config
+C:\Users\yalda\source\repos\RPGproject\bin\Debug\RPGproject.exe
+C:\Users\yalda\source\repos\RPGproject\bin\Debug\RPGproject.pdb
+C:\Users\yalda\source\repos\RPGproject\obj\Debug\RPGproject.exe
+C:\Users\yalda\source\repos\RPGproject\obj\Debug\RPGproject.pdb
