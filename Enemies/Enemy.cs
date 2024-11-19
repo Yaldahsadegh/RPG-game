@@ -12,28 +12,26 @@ namespace RPGproject.Enemies
     {
         public string Name { get; set; }
         public int Health { get; set; }
-        public int MaxHealth { get; set; } // Maximum health for consistency
+        public int MaxHealth { get; set; }
         public int Mana { get; set; }
         public int Strength { get; set; }
         public int Agility { get; set; }
-        public int Defense { get; set; } // Defense value for reducing damage
+        public int Defense { get; set; }
         public EnemyRank Rank { get; set; }
-        public IActionStrategy ActionStrategy { get; set; } // Each enemy can have a combat strategy
-        public ICharacterState CurrentState { get; set; } // Current state of the enemy (e.g., Idle, Attacking)
-
-        // Optional: Equipped gear for enemies
+        public IActionStrategy ActionStrategy { get; set; }
+        public ICharacterState CurrentState { get; set; }
         public Weapon EquippedWeapon { get; set; }
         public Armor EquippedArmor { get; set; }
 
-        public Enemy()
+        protected Enemy(EnemyRank rank)
         {
-            // Default action strategy is attack; customize based on enemy type
+            Rank = rank;
+            InitializeStatsByRank(rank); // Initialize stats based on rank
             ActionStrategy = new DefaultAction();
-            CurrentState = new IdleState(); // Default state
-            MaxHealth = 100; // Default max health
-            Health = MaxHealth;
-            Defense = 5; // Default defense value
+            CurrentState = new IdleState();
         }
+
+        protected abstract void InitializeStatsByRank(EnemyRank rank);
 
         public void SetActionStrategy(IActionStrategy actionStrategy)
         {
@@ -47,10 +45,9 @@ namespace RPGproject.Enemies
 
         public void PerformAction(ICombatant target)
         {
-            // Perform an action based on the current strategy
             if (ActionStrategy != null && target != null)
             {
-                ActionStrategy.PerformAction(this, target); // Execute the action strategy
+                ActionStrategy.PerformAction(this, target);
             }
             else
             {
@@ -58,20 +55,17 @@ namespace RPGproject.Enemies
             }
         }
 
-        // Enhanced attack method for all enemies
         public virtual void Attack(ICombatant target)
         {
             if (target == null) return;
 
             int damage = Strength;
 
-            // Add weapon damage if equipped
             if (EquippedWeapon != null)
             {
                 damage += EquippedWeapon.Damage;
             }
 
-            // Calculate reduced damage based on the target's defense
             if (target is Character characterTarget)
             {
                 damage -= characterTarget.Defense;
@@ -81,14 +75,12 @@ namespace RPGproject.Enemies
                 damage -= enemyTarget.Defense;
             }
 
-            // Ensure damage is not negative
             damage = Math.Max(damage, 0);
 
             Console.WriteLine($"{Name} attacks {target.Name} for {damage} damage!");
             target.TakeDamage(damage);
         }
 
-        // Take damage method for the enemy
         public void TakeDamage(int damage)
         {
             Health -= damage;
@@ -103,10 +95,9 @@ namespace RPGproject.Enemies
             }
         }
 
-        // Allow the enemy to heal, respecting max health
         public void Heal()
         {
-            const int healAmount = 10; // Define a fixed healing amount
+            const int healAmount = 10;
 
             if (Health <= 0)
             {
@@ -117,14 +108,13 @@ namespace RPGproject.Enemies
             int newHealth = Health + healAmount;
             if (newHealth > MaxHealth)
             {
-                newHealth = MaxHealth; // Cap at max health
+                newHealth = MaxHealth;
             }
 
-            Health = newHealth; // Update health
+            Health = newHealth;
             Console.WriteLine($"{Name} heals for {healAmount} health. Current health: {Health}/{MaxHealth}");
         }
 
-        // Allow enemies to equip weapons
         public void EquipWeapon(Weapon weapon)
         {
             if (EquippedWeapon != null)
@@ -136,7 +126,6 @@ namespace RPGproject.Enemies
             Console.WriteLine($"{Name} equips weapon: {weapon.Name}.");
         }
 
-        // Allow enemies to equip armor
         public void EquipArmor(Armor armor)
         {
             if (EquippedArmor != null)
@@ -150,6 +139,6 @@ namespace RPGproject.Enemies
             Console.WriteLine($"{Name} equips armor: {armor.Name}. Defense increases by {armor.Defense}.");
         }
 
-        public abstract void Move(); // Common movement behavior for enemies
+        public abstract void Move();
     }
 }

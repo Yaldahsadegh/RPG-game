@@ -13,7 +13,7 @@ namespace RPGproject.PlayerCharacter.Commands
         {
             Console.WriteLine($"{character.Name} is defending.");
             character.SetActionStrategy(new DefendAction()); // Assuming DefendAction is defined
-            character.PerformAction(); // Execute the defend action
+            //character.PerformAction(); // Execute the defend action
         }
     }
 }
