@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace RPGproject.Enemies
 {
-    public class EnemyFactory
+    public static class EnemyFactory
     {
-        public Enemy CreateEnemy(string type, EnemyRank rank)
+        public static Enemy CreateEnemy(string type, EnemyRank rank) // Make the method static
         {
             if (type == "Slime")
                 return new Slime(rank);
@@ -20,6 +20,5 @@ namespace RPGproject.Enemies
             else
                 throw new ArgumentException("Invalid enemy type");
         }
-
     }
 }

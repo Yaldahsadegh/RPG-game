@@ -1,4 +1,5 @@
 ﻿using RPGproject;
+using RPGproject.Enemies;
 using RPGproject.quest;
 using System;
 using System.Collections.Generic;
@@ -57,6 +58,8 @@ namespace RPGproject
         public WorldMap Map { get; private set; }
         public List<NPC> NPCs { get; private set; }
         public List<Character> PlayerCharacters { get; private set; } // To store all player-created characters
+        public List<Enemy> Enemies { get; private set; } = new List<Enemy>();
+
         public string TimeOfDay { get; set; }
         public string WeatherConditions { get; set; }
         public QuestManager QuestManager { get; private set; }
@@ -140,6 +143,14 @@ namespace RPGproject
         {
             PlayerCharacters.Add(character);
         }
+
+        //Method to add an enemy to the world
+
+        public void AddEnemy(Enemy enemy)
+        {
+            Enemies.Add(enemy);
+        }
+
 
         // Method to print the currently generated map
         public void PrintMap()

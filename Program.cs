@@ -1,4 +1,5 @@
-﻿using RPGproject.PlayerCharacter.Commands;
+﻿using RPGproject.Enemies;
+using RPGproject.PlayerCharacter.Commands;
 using RPGproject.PlayerCharacter.Commands.RPGproject.PlayerCharacter.Commands;
 using RPGproject.quest;
 using System;
@@ -34,6 +35,18 @@ namespace RPGproject
             gameWorld.TimeOfDay = "Night";
             gameWorld.WeatherConditions = "Foggy";
 
+            //create enemies 
+            var bossDragon = EnemyFactory.CreateEnemy("Dragon", EnemyRank.Boss);
+            var eliteGoblin = EnemyFactory.CreateEnemy("Goblin", EnemyRank.Elite);
+            var normalSlime = EnemyFactory.CreateEnemy("Slime", EnemyRank.Normal);
+
+            // add  enemies to the game world
+            GameWorld.Instance.AddEnemy(bossDragon);
+            GameWorld.Instance.AddEnemy(eliteGoblin);
+            GameWorld.Instance.AddEnemy(normalSlime);
+
+           
+
             // Call the character creation method
             CreateCharacters(gameWorld);
 
@@ -42,8 +55,13 @@ namespace RPGproject
 
             // Perform actions with created characters
             PerformCharacterActions(gameWorld);
+
         }
 
+        static void DisplayEnemyInfo(Enemy enemy)
+        {
+            Console.WriteLine($"Name: {enemy.Name}, Rank: {enemy.Rank}, Health: {enemy.Health}/{enemy.MaxHealth}, Strength: {enemy.Strength}, Defense: {enemy.Defense}");
+        }
         static void PerformCharacterActions(GameWorld gameWorld)
         {
             if (gameWorld.PlayerCharacters.Count == 0)
@@ -295,6 +313,19 @@ namespace RPGproject
             foreach (var character in gameWorld.PlayerCharacters)
             {
                 Console.WriteLine($"- {character.GetType().Name}: {character.Name}");
+            }
+
+            Console.WriteLine("\nEnemies in the Game World:");
+            if (gameWorld.Enemies.Count == 0)
+            {
+                Console.WriteLine("No enemies in the game world.");
+            }
+            else
+            {
+                foreach (var enemy in gameWorld.Enemies)
+                {
+                    DisplayEnemyInfo(enemy); // Display detailed information for each enemy
+                }
             }
 
             Console.WriteLine($"\nCurrent Time of Day: {gameWorld.TimeOfDay}");
