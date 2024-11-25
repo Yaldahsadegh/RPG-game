@@ -97,6 +97,7 @@ namespace RPGproject
                 // After character actions, trigger NPC interaction
                 InteractWithNPCs(currentCharacter, gameWorld);
 
+                // Show action menu prompt only once
                 Console.WriteLine($"\n{currentCharacter.Name}'s turn. Press A (Attack), D (Defend), H (Heal), M (Move), O (Open Menu), Q (Quit)");
 
                 bool quit = controller.Listen(currentCharacter);
@@ -110,7 +111,6 @@ namespace RPGproject
                     ShowActionMenu(currentCharacter, gameWorld); // Show the action menu when O is pressed
                 }
 
-
                 // Move to next character or ask if the player wants to end the round
                 if (AskUserForNextMove(ref currentCharacterIndex, gameWorld))
                 {
@@ -123,7 +123,6 @@ namespace RPGproject
                 }
             }
         }
-
         static void ShowActionMenu(Character character, GameWorld gameWorld)
         {
             bool exitMenu = false;
@@ -178,20 +177,17 @@ namespace RPGproject
 
 
 
-        public static void InteractWithNPCs(Character character, GameWorld gameWorld)
+        static void InteractWithNPCs(Character character, GameWorld gameWorld)
         {
             foreach (var npc in gameWorld.NPCs)
             {
-                Console.WriteLine($"{npc.Name} wants to speak with you, {character.Name}.");
-
-                // Ensure that only Zelda interacts at night, and only Mia interacts during the day
                 if (npc.Name == "Zelda" && gameWorld.TimeOfDay == "Night")
                 {
-                    HandleQuestForNPC(npc, gameWorld, character);  // Pass character to the method
+                    HandleQuestForNPC(npc, gameWorld, character);  // Zelda interacts only at night
                 }
                 else if (npc.Name == "Mia" && gameWorld.TimeOfDay == "Day")
                 {
-                    HandleQuestForNPC(npc, gameWorld, character);  // Pass character to the method
+                    HandleQuestForNPC(npc, gameWorld, character);  // Mia interacts only during the day
                 }
                 else if (npc.Name != "Zelda" && npc.Name != "Mia")
                 {
@@ -199,7 +195,6 @@ namespace RPGproject
                 }
             }
         }
-
 
         private static void HandleQuestForNPC(NPC npc, GameWorld gameWorld, Character character)
         {
@@ -258,10 +253,6 @@ namespace RPGproject
                 }
             }
         }
-
-
-
-
 
 
         static void DisplayInventory(Character character)
