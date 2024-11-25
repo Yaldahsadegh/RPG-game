@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace RPGproject
 {
@@ -29,11 +30,19 @@ namespace RPGproject
             // Set up the game world with a world map
             gameWorld.SetWorldMap(10, 10, biomes); // Example dimensions 10x10
 
+            //creating npcs
+            NPC zelda = new NPC("Zelda", "Guard");
+            NPC mia = new NPC("Mia", "Trader");
+
             // Add NPCs to the game world
-            gameWorld.AddNPC(new NPC("Zelda", "Guard"));
-            gameWorld.AddNPC(new NPC("Mia", "Trader"));
+            gameWorld.AddNPC(zelda);
+            gameWorld.AddNPC(mia);
             gameWorld.TimeOfDay = "Night";
             gameWorld.WeatherConditions = "Foggy";
+
+            // Subscribe NPCs to the QuestManager (for updates)
+            QuestManager.Instance.Subscribe(zelda);
+            QuestManager.Instance.Subscribe(mia);
 
             //create enemies 
             var bossDragon = EnemyFactory.CreateEnemy("Dragon", EnemyRank.Boss);
@@ -60,8 +69,9 @@ namespace RPGproject
 
         static void DisplayEnemyInfo(Enemy enemy)
         {
-            Console.WriteLine($"Name: {enemy.Name}, Rank: {enemy.Rank}, Health: {enemy.Health}/{enemy.MaxHealth}, Strength: {enemy.Strength}, Defense: {enemy.Defense}");
+            Console.WriteLine($"- {enemy.GetType().Name} ({enemy.Rank}): Health {enemy.Health}/{enemy.MaxHealth}, Strength {enemy.Strength}, Defense {enemy.Defense}");
         }
+
         static void PerformCharacterActions(GameWorld gameWorld)
         {
             if (gameWorld.PlayerCharacters.Count == 0)
@@ -83,6 +93,10 @@ namespace RPGproject
             while (!exitActions)
             {
                 Character currentCharacter = gameWorld.PlayerCharacters[currentCharacterIndex];
+
+                // After character actions, trigger NPC interaction
+                InteractWithNPCs(currentCharacter, gameWorld);
+
                 Console.WriteLine($"\n{currentCharacter.Name}'s turn. Press A (Attack), D (Defend), H (Heal), M (Move), O (Open Menu), Q (Quit)");
 
                 bool quit = controller.Listen(currentCharacter);
@@ -95,6 +109,7 @@ namespace RPGproject
                 {
                     ShowActionMenu(currentCharacter, gameWorld); // Show the action menu when O is pressed
                 }
+
 
                 // Move to next character or ask if the player wants to end the round
                 if (AskUserForNextMove(ref currentCharacterIndex, gameWorld))
@@ -142,9 +157,16 @@ namespace RPGproject
 
         static void DisplayQuestLog(Character character)
         {
+            // Get all quests
             var quests = QuestManager.Instance.GetQuests();
-            var characterQuests = quests.Where(q => q.AssignedNPC.Name == character.Name).ToList();
 
+            // Filter quests assigned to the character and that are not 'NotAccepted'
+            var characterQuests = quests.Where(q => q.AssignedNPC != null
+                                                    && q.AssignedNPC.Name == character.Name
+                                                    && q.Status != QuestStatus.NotAccepted)
+                                        .ToList();
+
+            // If no active quests for the character, inform the user
             if (characterQuests.Count == 0)
             {
                 Console.WriteLine($"{character.Name} has no active quests.");
@@ -154,10 +176,81 @@ namespace RPGproject
                 Console.WriteLine($"{character.Name}'s Quest Log:");
                 foreach (var quest in characterQuests)
                 {
+                    // Display the title, status, and description of each quest
                     Console.WriteLine($"- {quest.Title}: {quest.Status}");
+                    Console.WriteLine($"  Description: {quest.Description}");
+                    Console.WriteLine($"  Assigned by: {quest.AssignedNPC.Name}");
+                    Console.WriteLine($"  Enemy: {quest.EnemyName}");
                 }
             }
         }
+
+
+        public static void InteractWithNPCs(Character character, GameWorld gameWorld)
+        {
+            foreach (var npc in gameWorld.NPCs)
+            {
+                Console.WriteLine($"{npc.Name} wants to speak with you, {character.Name}.");
+
+                // Dynamically create a quest for this NPC if no quests are assigned
+                if (!QuestManager.Instance.GetQuests().Any(q => q.AssignedNPC == npc))
+                {
+                    // Example quest creation based on time of day and weather
+                    if (gameWorld.TimeOfDay == "Night" && gameWorld.WeatherConditions == "Foggy")
+                    {
+                        Console.WriteLine($"{npc.Name} has a new quest for you!");
+                        QuestManager.Instance.StartQuestForDefeatingEnemy(npc, "Dragon");
+                    }
+                    else if (gameWorld.TimeOfDay == "Day" && gameWorld.WeatherConditions == "Sunny")
+                    {
+                        Console.WriteLine($"{npc.Name} has a new quest for you!");
+                        QuestManager.Instance.StartQuestForDefeatingEnemy(npc, "Slime");
+                    }
+                }
+
+                // Retrieve quests assigned to this NPC that are not yet accepted
+                var quests = QuestManager.Instance.GetQuests().Where(q => q.AssignedNPC == npc && q.Status == QuestStatus.NotAccepted).ToList();
+
+                if (quests.Count == 0)
+                {
+                    Console.WriteLine($"{npc.Name} has no new quests for you.");
+                }
+                else
+                {
+                    foreach (var quest in quests)
+                    {
+                        Console.WriteLine($"{npc.Name}: {quest.Title} - {quest.Description}");
+
+                        bool validInput = false;
+                        while (!validInput)
+                        {
+                            Console.WriteLine("Do you want to accept this quest? (Y/N)");
+                            string input = Console.ReadLine()?.ToLower();
+
+                            switch (input)
+                            {
+                                case "y":
+                                    QuestManager.Instance.AcceptQuest(quest.Title); // Update the status to InProgress
+                                    Console.WriteLine($"{npc.Name}: Quest accepted. Good luck!");
+                                    validInput = true;
+                                    break;
+                                case "n":
+                                    QuestManager.Instance.DenyQuest(quest.Title);  // Update the status to Denied
+                                    Console.WriteLine($"{npc.Name}: Maybe next time.");
+                                    validInput = true;
+                                    break;
+                                default:
+                                    Console.WriteLine("Invalid input. Please type 'Y' to accept or 'N' to decline.");
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+
 
         static void DisplayInventory(Character character)
         {

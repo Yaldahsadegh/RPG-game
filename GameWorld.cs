@@ -3,6 +3,7 @@ using RPGproject.Enemies;
 using RPGproject.quest;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 
 namespace RPGproject
@@ -137,6 +138,61 @@ namespace RPGproject
             NPCs.Add(npc);
             QuestManager.Subscribe(npc);
         }
+
+
+        public void AssignQuestsToNPCs()
+        {
+            // Ensure NPCs are present
+            var zeldaNPC = NPCs.FirstOrDefault(n => n.Name == "Zelda");
+            var miaNPC = NPCs.FirstOrDefault(n => n.Name == "Mia");
+
+            if (zeldaNPC == null || miaNPC == null)
+            {
+                Console.WriteLine("One or both NPCs not found.");
+                return;
+            }
+
+            // Check if any quests are already assigned to the NPCs (Checking quest status instead of IsCompleted or IsAccepted)
+            var activeQuests = QuestManager.Instance.GetQuests();
+            bool zeldaHasQuest = activeQuests.Any(q => q.AssignedNPC == zeldaNPC && q.Status == QuestStatus.InProgress);
+            bool miaHasQuest = activeQuests.Any(q => q.AssignedNPC == miaNPC && q.Status == QuestStatus.InProgress);
+
+            // Assign quests based on time of day and if the NPC doesn't already have an active quest
+            if (TimeOfDay == "Night" && !zeldaHasQuest)
+            {
+                // Create Zelda's night quest
+                var zeldaQuest = new Quest("Defeat the Slime", "A slime is causing trouble near the village. Defeat it!", zeldaNPC, "Slime");
+                QuestManager.Instance.StartQuestForDefeatingEnemy(zeldaQuest.AssignedNPC, "Slime");
+                Console.WriteLine("Zelda's quest for the night has been assigned.");
+            }
+            else if (TimeOfDay == "Day" && !miaHasQuest)
+            {
+                // Create Mia's day quest
+                var miaQuest = new Quest("Defeat the Goblin", "A Goblin is terrorizing the village. Defeat it!", miaNPC, "Goblin");
+                QuestManager.Instance.StartQuestForDefeatingEnemy(miaQuest.AssignedNPC, "Goblin");
+                Console.WriteLine("Mia's quest for the day has been assigned.");
+            }
+            else
+            {
+                // Log if no quest is assigned due to conditions not being met
+                if (TimeOfDay == "Night" && zeldaHasQuest)
+                    Console.WriteLine("Zelda already has an active quest.");
+
+                if (TimeOfDay == "Day" && miaHasQuest)
+                    Console.WriteLine("Mia already has an active quest.");
+            }
+
+            // Debugging: Display the quests added
+            Console.WriteLine("Quests currently in the QuestManager:");
+            foreach (var quest in QuestManager.Instance.GetQuests())
+            {
+                Console.WriteLine($"Quest: {quest.Title}, Assigned NPC: {quest.AssignedNPC.Name}, Status: {quest.Status}");
+            }
+        }
+        
+
+
+
 
         // Method to add a player-created character to the world
         public void AddCharacter(Character character)

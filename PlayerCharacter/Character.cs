@@ -41,6 +41,9 @@ namespace RPGproject
             Defense = 0;
             CurrentState = new IdleState(); // Default state
             ActionStrategy = new DefaultAction(); // Default action strategy
+
+            // Subscribe to QuestManager for quest notifications
+            QuestManager.Instance.Subscribe(this);
         }
 
         public void SetActionStrategy(IActionStrategy actionStrategy)
