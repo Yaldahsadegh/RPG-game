@@ -46,6 +46,27 @@ namespace RPGproject
             QuestManager.Instance.Subscribe(this);
         }
 
+            // Accept a quest via QuestManager
+        public void AcceptQuest(string title)
+        {
+            QuestManager.Instance.AcceptQuest(title, this);  // Accept the quest through QuestManager
+        }
+
+        // Complete a quest when the enemy is defeated
+        public void CompleteQuest(string title, string defeatedEnemy)
+        {
+            QuestManager.Instance.CompleteQuest(title, defeatedEnemy, this);  // Complete quest through QuestManager
+        }
+
+        // Respond to quest updates from QuestManager
+        public void Update(string questStatus)
+        {
+            Console.WriteLine($"{Name} received a quest update: {questStatus}");
+        }
+
+        public abstract void DisplayInfo();
+
+
         public void SetActionStrategy(IActionStrategy actionStrategy)
         {
             ActionStrategy = actionStrategy;
@@ -258,12 +279,5 @@ namespace RPGproject
                 Console.WriteLine($"Item {itemName} not found in inventory.");
             }
         }
-
-        public void Update(string questStatus)
-        {
-            Console.WriteLine($"{Name} received a quest update: {questStatus}");
-        }
-
-        public abstract void DisplayInfo();
     }
 }

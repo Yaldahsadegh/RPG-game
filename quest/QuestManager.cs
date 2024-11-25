@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using RPGproject.Enemies;
 
 namespace RPGproject.quest
@@ -12,6 +10,9 @@ namespace RPGproject.quest
         private static QuestManager instance;
         private List<IObserver> observers = new List<IObserver>();
         private List<Quest> quests = new List<Quest>();
+
+        // Dictionary to track which quests each character has accepted
+        private Dictionary<Character, List<Quest>> characterQuests = new Dictionary<Character, List<Quest>>();
 
         // Singleton pattern
         public static QuestManager Instance
@@ -59,16 +60,13 @@ namespace RPGproject.quest
             var quest = new Quest(title, description, assignedNPC, enemyName);
             quests.Add(quest);
 
-            // Debugging output
-            Console.WriteLine("Quest created:");
-            Console.WriteLine($"Title: {quest.Title}, Description: {quest.Description}");
 
             // Notify observers about the quest
             Notify($"Quest Available: {quest.Title} - {quest.Description}");
         }
 
         // Accept a quest if not already accepted
-        public void AcceptQuest(string title)
+        public void AcceptQuest(string title, Character character)
         {
             var quest = quests.FirstOrDefault(q => q.Title == title);
             if (quest != null)
@@ -77,7 +75,15 @@ namespace RPGproject.quest
                 {
                     quest.Status = QuestStatus.InProgress;
                     Console.WriteLine($"Quest '{quest.Title}' is now in progress.");
-                    Notify($"Quest Accepted: {quest.Title}");
+
+                    // Add the quest to the character's active quest log
+                    if (!characterQuests.ContainsKey(character))
+                    {
+                        characterQuests[character] = new List<Quest>();
+                    }
+                    characterQuests[character].Add(quest);  // Track quest for the character
+
+                    Notify($"Quest Accepted: {quest.Title} by {character.Name}");
                 }
                 else
                 {
@@ -89,6 +95,7 @@ namespace RPGproject.quest
                 Console.WriteLine($"Quest '{title}' not found.");
             }
         }
+
         // Deny a quest, marking it as Denied
         public void DenyQuest(string title)
         {
@@ -104,19 +111,22 @@ namespace RPGproject.quest
                 Console.WriteLine($"Quest '{title}' not found or already accepted.");
             }
         }
+
         // Complete a quest when the assigned enemy is defeated
-        public void CompleteQuest(string title, string defeatedEnemy)
+        public void CompleteQuest(string title, string defeatedEnemy, Character character)
         {
-            var quest = quests.FirstOrDefault(q => q.Title == title && q.Status == QuestStatus.InProgress);
-            if (quest != null && quest.EnemyName == defeatedEnemy)  // Assuming you have an 'EnemyName' property
+            var quest = characterQuests.ContainsKey(character) ?
+                        characterQuests[character].FirstOrDefault(q => q.Title == title && q.Status == QuestStatus.InProgress) : null;
+
+            if (quest != null && quest.EnemyName == defeatedEnemy)
             {
                 quest.Status = QuestStatus.Completed;
                 Notify($"Quest Completed: {quest.Title} - {defeatedEnemy} defeated!");
-                Console.WriteLine($"Quest '{quest.Title}' is now completed.");
+                Console.WriteLine($"Quest '{quest.Title}' is now completed for {character.Name}.");
             }
             else
             {
-                Console.WriteLine($"Quest '{title}' is not in progress or the enemy does not match.");
+                Console.WriteLine($"Quest '{title}' is not in progress or the enemy does not match for {character.Name}.");
             }
         }
 
@@ -131,7 +141,14 @@ namespace RPGproject.quest
         {
             return quests; // Return the list of quests for viewing
         }
+
+        // Method to get a character's active quests
+        public List<Quest> GetCharacterQuests(Character character)
+        {
+            return characterQuests.ContainsKey(character) ? characterQuests[character] : new List<Quest>();
+        }
     }
+
     // QuestStatus Enum for more structured quest states
     public enum QuestStatus
     {
@@ -140,5 +157,4 @@ namespace RPGproject.quest
         Completed,
         Denied
     }
-
 }

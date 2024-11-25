@@ -157,16 +157,8 @@ namespace RPGproject
 
         static void DisplayQuestLog(Character character)
         {
-            // Get all quests
-            var quests = QuestManager.Instance.GetQuests();
+            var characterQuests = QuestManager.Instance.GetCharacterQuests(character);
 
-            // Filter quests assigned to the character and that are not 'NotAccepted'
-            var characterQuests = quests.Where(q => q.AssignedNPC != null
-                                                    && q.AssignedNPC.Name == character.Name
-                                                    && q.Status != QuestStatus.NotAccepted)
-                                        .ToList();
-
-            // If no active quests for the character, inform the user
             if (characterQuests.Count == 0)
             {
                 Console.WriteLine($"{character.Name} has no active quests.");
@@ -176,7 +168,6 @@ namespace RPGproject
                 Console.WriteLine($"{character.Name}'s Quest Log:");
                 foreach (var quest in characterQuests)
                 {
-                    // Display the title, status, and description of each quest
                     Console.WriteLine($"- {quest.Title}: {quest.Status}");
                     Console.WriteLine($"  Description: {quest.Description}");
                     Console.WriteLine($"  Assigned by: {quest.AssignedNPC.Name}");
@@ -186,68 +177,89 @@ namespace RPGproject
         }
 
 
+
         public static void InteractWithNPCs(Character character, GameWorld gameWorld)
         {
             foreach (var npc in gameWorld.NPCs)
             {
                 Console.WriteLine($"{npc.Name} wants to speak with you, {character.Name}.");
 
-                // Dynamically create a quest for this NPC if no quests are assigned
-                if (!QuestManager.Instance.GetQuests().Any(q => q.AssignedNPC == npc))
+                // Ensure that only Zelda interacts at night, and only Mia interacts during the day
+                if (npc.Name == "Zelda" && gameWorld.TimeOfDay == "Night")
                 {
-                    // Example quest creation based on time of day and weather
-                    if (gameWorld.TimeOfDay == "Night" && gameWorld.WeatherConditions == "Foggy")
-                    {
-                        Console.WriteLine($"{npc.Name} has a new quest for you!");
-                        QuestManager.Instance.StartQuestForDefeatingEnemy(npc, "Dragon");
-                    }
-                    else if (gameWorld.TimeOfDay == "Day" && gameWorld.WeatherConditions == "Sunny")
-                    {
-                        Console.WriteLine($"{npc.Name} has a new quest for you!");
-                        QuestManager.Instance.StartQuestForDefeatingEnemy(npc, "Slime");
-                    }
+                    HandleQuestForNPC(npc, gameWorld, character);  // Pass character to the method
                 }
-
-                // Retrieve quests assigned to this NPC that are not yet accepted
-                var quests = QuestManager.Instance.GetQuests().Where(q => q.AssignedNPC == npc && q.Status == QuestStatus.NotAccepted).ToList();
-
-                if (quests.Count == 0)
+                else if (npc.Name == "Mia" && gameWorld.TimeOfDay == "Day")
                 {
-                    Console.WriteLine($"{npc.Name} has no new quests for you.");
+                    HandleQuestForNPC(npc, gameWorld, character);  // Pass character to the method
                 }
-                else
+                else if (npc.Name != "Zelda" && npc.Name != "Mia")
                 {
-                    foreach (var quest in quests)
-                    {
-                        Console.WriteLine($"{npc.Name}: {quest.Title} - {quest.Description}");
+                    HandleQuestForNPC(npc, gameWorld, character);  // For any other NPCs that should interact at all times
+                }
+            }
+        }
 
-                        bool validInput = false;
-                        while (!validInput)
+
+        private static void HandleQuestForNPC(NPC npc, GameWorld gameWorld, Character character)
+        {
+            // Dynamically create a quest for this NPC if no quests are assigned
+            if (!QuestManager.Instance.GetQuests().Any(q => q.AssignedNPC == npc))
+            {
+                // Example quest creation based on time of day and weather
+                if (gameWorld.TimeOfDay == "Night" && gameWorld.WeatherConditions == "Foggy")
+                {
+                    Console.WriteLine($"{npc.Name} has a new quest for you!");
+                    QuestManager.Instance.StartQuestForDefeatingEnemy(npc, "Dragon");
+                }
+                else if (gameWorld.TimeOfDay == "Day" && gameWorld.WeatherConditions == "Sunny")
+                {
+                    Console.WriteLine($"{npc.Name} has a new quest for you!");
+                    QuestManager.Instance.StartQuestForDefeatingEnemy(npc, "Slime");
+                }
+            }
+
+            // Retrieve quests assigned to this NPC that are not yet accepted
+            var quests = QuestManager.Instance.GetQuests().Where(q => q.AssignedNPC == npc && q.Status == QuestStatus.NotAccepted).ToList();
+
+            if (quests.Count == 0)
+            {
+                Console.WriteLine($"{npc.Name} has no new quests for you.");
+            }
+            else
+            {
+                foreach (var quest in quests)
+                {
+                    Console.WriteLine($"{npc.Name}: {quest.Title} - {quest.Description}");
+
+                    bool validInput = false;
+                    while (!validInput)
+                    {
+                        Console.WriteLine("Do you want to accept this quest? (Y/N)");
+                        string input = Console.ReadLine()?.ToLower();
+
+                        switch (input)
                         {
-                            Console.WriteLine("Do you want to accept this quest? (Y/N)");
-                            string input = Console.ReadLine()?.ToLower();
-
-                            switch (input)
-                            {
-                                case "y":
-                                    QuestManager.Instance.AcceptQuest(quest.Title); // Update the status to InProgress
-                                    Console.WriteLine($"{npc.Name}: Quest accepted. Good luck!");
-                                    validInput = true;
-                                    break;
-                                case "n":
-                                    QuestManager.Instance.DenyQuest(quest.Title);  // Update the status to Denied
-                                    Console.WriteLine($"{npc.Name}: Maybe next time.");
-                                    validInput = true;
-                                    break;
-                                default:
-                                    Console.WriteLine("Invalid input. Please type 'Y' to accept or 'N' to decline.");
-                                    break;
-                            }
+                            case "y":
+                                QuestManager.Instance.AcceptQuest(quest.Title, character);  // Pass the character object here
+                                Console.WriteLine($"{npc.Name}: Quest accepted. Good luck!");
+                                validInput = true;
+                                break;
+                            case "n":
+                                QuestManager.Instance.DenyQuest(quest.Title); // Pass the quest title
+                                Console.WriteLine($"{npc.Name}: Maybe next time.");
+                                validInput = true;
+                                break;
+                            default:
+                                Console.WriteLine("Invalid input. Please type 'Y' to accept or 'N' to decline.");
+                                break;
                         }
                     }
                 }
             }
         }
+
+
 
 
 
