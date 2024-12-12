@@ -45,12 +45,17 @@ namespace RPGproject
         public int Y { get; }
         public List<NPC> NPCs { get; } = new List<NPC>();
 
-        public Location(string name, string type, int x, int y)
+        public string TimeOfDay { get; set; }
+        public string WeatherConditions { get; set; }
+
+        public Location(string name, string type, int x, int y, string timeOfDay, string weatherConditions)
         {
             Name = name;
             Type = type;
             X = x;
             Y = y;
+            TimeOfDay = timeOfDay; 
+            WeatherConditions = weatherConditions;  
         }
 
         public void AddNPC(NPC npc)
@@ -84,12 +89,9 @@ namespace RPGproject
         public List<Character> PlayerCharacters { get; private set; }
         public List<Location> Locations { get; private set; }
         public List<Enemy> Enemies { get; private set; } = new List<Enemy>();
-
-        public string TimeOfDay { get; set; }
-        public string WeatherConditions { get; set; }
         public QuestManager QuestManager { get; private set; }
 
-        private static Random random = new Random();
+        public static Random Random = new Random();
 
         // Private constructor for Singleton
         private GameWorld()
@@ -132,7 +134,7 @@ namespace RPGproject
                 for (int y = 0; y < height; y++)
                 {
                     // Generate elevation randomly
-                    int elevation = random.Next(0, 200);
+                    int elevation = Random.Next(0, 200);
 
                     // Determine biome based on elevation
                     Biome selectedBiome = SelectBiome(biomes, elevation);
@@ -164,9 +166,9 @@ namespace RPGproject
         private void GenerateLocations()
         {
             Locations.Clear();
-            Locations.Add(new Location("Greenwood Village", "Village", random.Next(0, Map.Width), random.Next(0, Map.Height)));
-            Locations.Add(new Location("Stormhold Town", "Town", random.Next(0, Map.Width), random.Next(0, Map.Height)));
-            Locations.Add(new Location("Darkthorn Dungeon", "Dungeon", random.Next(0, Map.Width), random.Next(0, Map.Height)));
+            Locations.Add(new Location("Greenwood Village", "Village", Random.Next(0, Map.Width), Random.Next(0, Map.Height), "Morning", "Clear"));
+            Locations.Add(new Location("Stormhold Town", "Town", Random.Next(0, Map.Width), Random.Next(0, Map.Height), "Afternoon", "Rainy"));
+            Locations.Add(new Location("Darkthorn Dungeon", "Dungeon", Random.Next(0, Map.Width), Random.Next(0, Map.Height), "Night", "Foggy"));
         }
 
         // Generate NPCs for each location

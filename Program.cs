@@ -28,9 +28,9 @@ namespace RPGproject
             };
 
             // Set up the game world with a world map
-            gameWorld.SetWorldMap(10, 10, biomes); 
+            gameWorld.SetWorldMap(10, 10, biomes);
 
-           
+
             //create enemies 
             var bossDragon = EnemyFactory.CreateEnemy("Dragon", EnemyRank.Boss);
             var eliteGoblin = EnemyFactory.CreateEnemy("Goblin", EnemyRank.Elite);
@@ -85,7 +85,7 @@ namespace RPGproject
                 InteractWithNPCs(currentCharacter, gameWorld);
 
                 // Show action menu prompt only once
-                Console.WriteLine($"\n{currentCharacter.Name}'s turn. Press A (Attack), D (Defend), H (Heal), M (Move), O (Open Menu), Q (Quit)");
+                Console.WriteLine($"\n{currentCharacter.Name}'s turn. Press A (Attack), D (Defend), H (Heal), M (Move), O (Quest Log), Q (Quit)");
 
                 bool quit = controller.Listen(currentCharacter);
 
@@ -98,7 +98,7 @@ namespace RPGproject
                     ShowActionMenu(currentCharacter, gameWorld); // Show the action menu when O is pressed
                 }
 
-                // Move to next character or ask if the player wants to end the round
+                // Ask if the player wants to continue and return to location selection after same character turn
                 if (AskUserForNextMove(ref currentCharacterIndex, gameWorld))
                 {
                     Console.WriteLine("\nDo you want to continue actions for the next round? (yes/no)");
@@ -107,9 +107,15 @@ namespace RPGproject
                     {
                         exitActions = true;
                     }
+                    else
+                    {
+                        // Call the location selection method again after continuing with the same character
+                        InteractWithNPCs(currentCharacter, gameWorld);  // This will re-prompt the user to choose a location.
+                    }
                 }
             }
         }
+
         static void ShowActionMenu(Character character, GameWorld gameWorld)
         {
             bool exitMenu = false;
@@ -410,6 +416,7 @@ namespace RPGproject
             Console.WriteLine("Game World Locations:");
             Console.WriteLine(new string('-', gameWorld.Map.Width * 2));
 
+            // Display the map with biome information
             for (int y = 0; y < gameWorld.Map.Height; y++)
             {
                 for (int x = 0; x < gameWorld.Map.Width; x++)
@@ -421,21 +428,30 @@ namespace RPGproject
                 Console.WriteLine();
                 Console.ResetColor();
             }
-
             Console.WriteLine(new string('-', gameWorld.Map.Width * 2));
 
+            // Display the locations with their Time of Day and Weather Conditions
+            Console.WriteLine("\nLocations in the Game World:");
+            foreach (var location in gameWorld.Locations)
+            {
+                Console.WriteLine($"{location.Name} ({location.Type}) - Time of Day: {location.TimeOfDay}, Weather: {location.WeatherConditions}");
+            }
+
+            // Display NPCs in the Game World
             Console.WriteLine("\nNPCs in the Game World:");
             foreach (var npc in gameWorld.NPCs)
             {
                 Console.WriteLine($"- {npc.Name} ({npc.Role})");
             }
 
+            // Display Player-Created Characters
             Console.WriteLine("\nPlayer-Created Characters:");
             foreach (var character in gameWorld.PlayerCharacters)
             {
                 Console.WriteLine($"- {character.GetType().Name}: {character.Name}");
             }
 
+            // Display Enemies in the Game World
             Console.WriteLine("\nEnemies in the Game World:");
             if (gameWorld.Enemies.Count == 0)
             {
@@ -448,9 +464,6 @@ namespace RPGproject
                     DisplayEnemyInfo(enemy); // Display detailed information for each enemy
                 }
             }
-
-            Console.WriteLine($"\nCurrent Time of Day: {gameWorld.TimeOfDay}");
-            Console.WriteLine($"Current Weather Conditions: {gameWorld.WeatherConditions}");
         }
     }
 }
