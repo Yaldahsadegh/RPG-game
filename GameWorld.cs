@@ -189,7 +189,7 @@ namespace RPGproject
                 Console.WriteLine($"Quest: {quest.Title}, Assigned NPC: {quest.AssignedNPC.Name}, Status: {quest.Status}");
             }
         }
-        
+
 
 
 

@@ -54,7 +54,7 @@ namespace RPGproject
             GameWorld.Instance.AddEnemy(eliteGoblin);
             GameWorld.Instance.AddEnemy(normalSlime);
 
-           
+
 
             // Call the character creation method
             CreateCharacters(gameWorld);
@@ -281,7 +281,7 @@ namespace RPGproject
             }
         }
 
-            static bool AskUserForNextMove(ref int currentCharacterIndex, GameWorld gameWorld)
+        static bool AskUserForNextMove(ref int currentCharacterIndex, GameWorld gameWorld)
         {
             Console.WriteLine("\nWhat would you like to do next?");
             Console.WriteLine("1. Continue with the same character.");
@@ -344,31 +344,31 @@ namespace RPGproject
                             throw new ArgumentException("Invalid character type.");
                     }
 
-                            // Create 3 weapons, 1 potion, and 1 armor for this character
-                            var weapons = new List<Weapon>
+                    // Create 3 weapons, 1 potion, and 1 armor for this character
+                    var weapons = new List<Weapon>
                     {
                         itemFactory.CreateWeapon("Weapon 1"),
                         itemFactory.CreateWeapon("Weapon 2"),
                         itemFactory.CreateWeapon("Weapon 3")
                     };
-                            var potion = itemFactory.CreatePotion("Healing Potion");
-                            var armor = itemFactory.CreateArmor("Steel Armor");
+                    var potion = itemFactory.CreatePotion("Healing Potion");
+                    var armor = itemFactory.CreateArmor("Steel Armor");
 
-                            // Add the generated items to the character's inventory
-                            foreach (var weapon in weapons)
-                            {
-                                newCharacter.Inventory.AddItemToInventory(weapon);
-                            }
-                            newCharacter.Inventory.AddItemToInventory(potion);
-                            newCharacter.Inventory.AddItemToInventory(armor);
-
-                            // Display character info
-                            newCharacter.DisplayInfo();
-
-                            // Add the character to the game world
-                            gameWorld.AddCharacter(newCharacter);
-                            break;
+                    // Add the generated items to the character's inventory
+                    foreach (var weapon in weapons)
+                    {
+                        newCharacter.Inventory.AddItemToInventory(weapon);
                     }
+                    newCharacter.Inventory.AddItemToInventory(potion);
+                    newCharacter.Inventory.AddItemToInventory(armor);
+
+                    // Display character info
+                    newCharacter.DisplayInfo();
+
+                    // Add the character to the game world
+                    gameWorld.AddCharacter(newCharacter);
+                    break;
+                }
 
 
 
