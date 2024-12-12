@@ -36,6 +36,29 @@ namespace RPGproject
         }
     }
 
+    // Location class to represent different locations (Villages, Towns, Dungeons)
+    public class Location
+    {
+        public string Name { get; }
+        public string Type { get; } // Village, Town, Dungeon
+        public int X { get; }
+        public int Y { get; }
+        public List<NPC> NPCs { get; } = new List<NPC>();
+
+        public Location(string name, string type, int x, int y)
+        {
+            Name = name;
+            Type = type;
+            X = x;
+            Y = y;
+        }
+
+        public void AddNPC(NPC npc)
+        {
+            NPCs.Add(npc);
+        }
+    }
+
     // WorldMap class to represent the overall map structure
     public class WorldMap
     {
@@ -58,7 +81,8 @@ namespace RPGproject
         // Changed from List<string> to WorldMap to store tiles
         public WorldMap Map { get; private set; }
         public List<NPC> NPCs { get; private set; }
-        public List<Character> PlayerCharacters { get; private set; } // To store all player-created characters
+        public List<Character> PlayerCharacters { get; private set; }
+        public List<Location> Locations { get; private set; }
         public List<Enemy> Enemies { get; private set; } = new List<Enemy>();
 
         public string TimeOfDay { get; set; }
@@ -71,7 +95,8 @@ namespace RPGproject
         private GameWorld()
         {
             NPCs = new List<NPC>();
-            PlayerCharacters = new List<Character>(); // Initialize the player character list
+            PlayerCharacters = new List<Character>();
+            Locations = new List<Location>();
             QuestManager = new QuestManager();
         }
 
@@ -93,6 +118,8 @@ namespace RPGproject
         public void SetWorldMap(int width, int height, List<Biome> biomes)
         {
             Map = GenerateWorldMap(width, height, biomes);
+            GenerateLocations();
+            GenerateNPCsForLocations();
         }
 
         // Generate new game world map
@@ -133,6 +160,41 @@ namespace RPGproject
             return biomes[0];
         }
 
+        // Generate new locations
+        private void GenerateLocations()
+        {
+            Locations.Clear();
+            Locations.Add(new Location("Greenwood Village", "Village", random.Next(0, Map.Width), random.Next(0, Map.Height)));
+            Locations.Add(new Location("Stormhold Town", "Town", random.Next(0, Map.Width), random.Next(0, Map.Height)));
+            Locations.Add(new Location("Darkthorn Dungeon", "Dungeon", random.Next(0, Map.Width), random.Next(0, Map.Height)));
+        }
+
+        // Generate NPCs for each location
+        private void GenerateNPCsForLocations()
+        {
+            foreach (var location in Locations)
+            {
+                switch (location.Type)
+                {
+                    case "Village":
+                        var zelda = new NPC("Zelda", "Villager");
+                        location.AddNPC(zelda);
+                        AddNPC(zelda);
+                        break;
+                    case "Town":
+                        var mia = new NPC("Mia", "Merchant");
+                        location.AddNPC(mia);
+                        AddNPC(mia);
+                        break;
+                    case "Dungeon":
+                        var morga = new NPC("Morga", "Queen");
+                        location.AddNPC(morga);
+                        AddNPC(morga);
+                        break;
+                }
+            }
+        }
+
         public void AddNPC(NPC npc)
         {
             NPCs.Add(npc);
@@ -142,57 +204,42 @@ namespace RPGproject
 
         public void AssignQuestsToNPCs()
         {
-            // Ensure NPCs are present
             var zeldaNPC = NPCs.FirstOrDefault(n => n.Name == "Zelda");
             var miaNPC = NPCs.FirstOrDefault(n => n.Name == "Mia");
+            var morgaNPC = NPCs.FirstOrDefault(n => n.Name == "Morga");
 
-            if (zeldaNPC == null || miaNPC == null)
+            if (zeldaNPC == null || miaNPC == null || morgaNPC == null)
             {
-                Console.WriteLine("One or both NPCs not found.");
+                Console.WriteLine("One or more NPCs not found.");
                 return;
             }
 
-            // Check if any quests are already assigned to the NPCs (Checking quest status instead of IsCompleted or IsAccepted)
             var activeQuests = QuestManager.Instance.GetQuests();
             bool zeldaHasQuest = activeQuests.Any(q => q.AssignedNPC == zeldaNPC && q.Status == QuestStatus.InProgress);
             bool miaHasQuest = activeQuests.Any(q => q.AssignedNPC == miaNPC && q.Status == QuestStatus.InProgress);
+            bool morgaHasQuest = activeQuests.Any(q => q.AssignedNPC == morgaNPC && q.Status == QuestStatus.InProgress);
 
-            // Assign quests based on time of day and if the NPC doesn't already have an active quest
-            if (TimeOfDay == "Night" && !zeldaHasQuest)
+            if (!zeldaHasQuest)
             {
-                // Create Zelda's night quest
-                var zeldaQuest = new Quest("Defeat the Slime", "A slime is causing trouble near the village. Defeat it!", zeldaNPC, "Slime");
+                var zeldaQuest = new Quest("Defeat the Slime", "A slime is causing trouble near Greenwood Village. Defeat it!", zeldaNPC, "Slime");
                 QuestManager.Instance.StartQuestForDefeatingEnemy(zeldaQuest.AssignedNPC, "Slime");
-                Console.WriteLine("Zelda's quest for the night has been assigned.");
+                Console.WriteLine("Zelda's quest has been assigned in Greenwood Village.");
             }
-            else if (TimeOfDay == "Day" && !miaHasQuest)
+
+            if (!miaHasQuest)
             {
-                // Create Mia's day quest
-                var miaQuest = new Quest("Defeat the Goblin", "A Goblin is terrorizing the village. Defeat it!", miaNPC, "Goblin");
+                var miaQuest = new Quest("Defeat the Goblin", "A goblin is terrorizing Stormhold Town. Defeat it!", miaNPC, "Goblin");
                 QuestManager.Instance.StartQuestForDefeatingEnemy(miaQuest.AssignedNPC, "Goblin");
-                Console.WriteLine("Mia's quest for the day has been assigned.");
-            }
-            else
-            {
-                // Log if no quest is assigned due to conditions not being met
-                if (TimeOfDay == "Night" && zeldaHasQuest)
-                    Console.WriteLine("Zelda already has an active quest.");
-
-                if (TimeOfDay == "Day" && miaHasQuest)
-                    Console.WriteLine("Mia already has an active quest.");
+                Console.WriteLine("Mia's quest has been assigned in Stormhold Town.");
             }
 
-            // Debugging: Display the quests added
-            Console.WriteLine("Quests currently in the QuestManager:");
-            foreach (var quest in QuestManager.Instance.GetQuests())
+            if (!morgaHasQuest)
             {
-                Console.WriteLine($"Quest: {quest.Title}, Assigned NPC: {quest.AssignedNPC.Name}, Status: {quest.Status}");
+                var morgaQuest = new Quest("Defeat the Dragon", "A dragon is lurking in Darkthorn Dungeon. Defeat it!", morgaNPC, "Dragon");
+                QuestManager.Instance.StartQuestForDefeatingEnemy(morgaQuest.AssignedNPC, "Dragon");
+                Console.WriteLine("Morga's quest has been assigned in Darkthorn Dungeon.");
             }
         }
-
-
-
-
 
         // Method to add a player-created character to the world
         public void AddCharacter(Character character)
